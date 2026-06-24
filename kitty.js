@@ -1,61 +1,79 @@
-// 🐱🎉 A cute little party kitty, drawn + animated with p5.js (instance mode
-// so it doesn't stomp on the globals in script.js).
+// 🐱🎉 Lilo & Stitch — two party cats drawn + animated with p5.js
+// (instance mode so it stays out of script.js's globals).
 
 const kittySketch = (p) => {
-  const W = 170, H = 200;
-  let t = 0;          // master clock
-  let blink = 0;      // 0 = eyes open, 1 = fully shut
-  let nextBlink = 90; // frames until next blink
-  let happy = 0;      // boosted when clicked → bigger smile + bounce
+  const W = 340, H = 210;
+  let t = 0;
+
+  // Per-cat look + state. Lilo: grey. Stitch: blue-eyed tabby.
+  const cats = [
+    {
+      name: 'Lilo',
+      x: W * 0.27,
+      fur: '#B9B6C4', furShade: '#A7A3B5', earPink: '#FFB7DE',
+      eye: '#3A2A4A', tabby: false,
+      hatA: '#FF3FA4', hatB: '#FFD600', pom: '#7B5CFF',
+      phase: 0, blink: 0, nextBlink: 70, happy: 0
+    },
+    {
+      name: 'Stitch',
+      x: W * 0.73,
+      fur: '#7FA8C9', furShade: '#6B95B8', earPink: '#FFB7DE',
+      eye: '#1C6FE0', tabby: true,
+      hatA: '#7B5CFF', hatB: '#FF6FC2', pom: '#FFD600',
+      phase: Math.PI, blink: 0, nextBlink: 110, happy: 0
+    }
+  ];
 
   p.setup = () => {
     const c = p.createCanvas(W, H);
     c.parent('kitty-canvas');
     p.angleMode(p.RADIANS);
-    // a little click delight
-    c.mousePressed(() => { happy = 1; });
+    c.mousePressed(() => {
+      // bounce whichever cat was clicked
+      cats.forEach(cat => {
+        if (Math.abs(p.mouseX - cat.x) < 60) cat.happy = 1;
+      });
+    });
   };
 
   p.draw = () => {
     p.clear();
     t += 0.05;
-    happy = Math.max(0, happy - 0.02);
+    cats.forEach(drawCat);
+  };
 
-    // gentle idle bob, exaggerated briefly on click
-    const bob = Math.sin(t) * 4 - happy * 14;
+  function drawCat(cat) {
+    cat.happy = Math.max(0, cat.happy - 0.02);
+    const localT = t + cat.phase;
+    const bob = Math.sin(localT) * 4 - cat.happy * 14;
 
     // blink timing
-    if (--nextBlink <= 0) {
-      blink = Math.min(1, blink + 0.25);
-      if (blink >= 1) { nextBlink = 80 + Math.floor(p.random(80)); }
-    } else if (blink > 0 && nextBlink > 6) {
-      blink = Math.max(0, blink - 0.34);
+    if (--cat.nextBlink <= 0) {
+      cat.blink = Math.min(1, cat.blink + 0.25);
+      if (cat.blink >= 1) cat.nextBlink = 80 + Math.floor(p.random(90));
+    } else if (cat.blink > 0 && cat.nextBlink > 6) {
+      cat.blink = Math.max(0, cat.blink - 0.34);
     }
 
     p.push();
-    p.translate(W / 2, H / 2 + 18 + bob);
+    p.translate(cat.x, H / 2 + 14 + bob);
     p.noStroke();
 
-    drawTail();
-    drawBody();
-    drawHead();
-    drawPartyHat();
+    drawTail(cat, localT);
+    drawBody(cat);
+    drawHead(cat, localT);
+    drawPartyHat(cat, localT);
+    drawNameTag(cat, bob);
     p.pop();
-  };
+  }
 
-  const FUR = '#FFFFFF';
-  const FUR_SHADE = '#FFE3F3';
-  const PINK = '#FF3FA4';
-  const PINK_DK = '#D6177E';
-  const VIOLET = '#7B5CFF';
-
-  function drawTail() {
-    const wag = Math.sin(t * 1.4) * 0.35;
+  function drawTail(cat, localT) {
+    const wag = Math.sin(localT * 1.4) * 0.35;
     p.push();
     p.translate(34, 40);
     p.rotate(wag);
-    p.fill(FUR);
-    p.stroke(FUR);
+    p.stroke(cat.fur);
     p.strokeWeight(13);
     p.noFill();
     p.beginShape();
@@ -63,69 +81,88 @@ const kittySketch = (p) => {
     p.bezierVertex(34, 8, 44, -22, 28, -46);
     p.endShape();
     p.noStroke();
-    // pink tip
-    p.fill(PINK);
-    p.circle(28, -46, 14);
+    p.fill(cat.earPink);
+    p.circle(28, -46, 13);
     p.pop();
   }
 
-  function drawBody() {
-    p.fill(FUR_SHADE);
-    p.ellipse(0, 56, 84, 70);          // soft shadow body
-    p.fill(FUR);
+  function drawBody(cat) {
+    p.fill(cat.furShade);
+    p.ellipse(0, 56, 84, 70);
+    p.fill(cat.fur);
     p.ellipse(0, 52, 80, 66);
-    // little paws
+    // tabby belly stripes
+    if (cat.tabby) {
+      p.fill(cat.furShade);
+      p.ellipse(-14, 44, 6, 18);
+      p.ellipse(0, 42, 6, 20);
+      p.ellipse(14, 44, 6, 18);
+    }
+    // paws
+    p.fill(cat.fur);
     p.ellipse(-20, 80, 22, 16);
     p.ellipse(20, 80, 22, 16);
-    p.fill(PINK);
+    p.fill(cat.earPink);
     p.ellipse(-20, 82, 8, 5);
     p.ellipse(20, 82, 8, 5);
   }
 
-  function drawHead() {
+  function drawHead(cat, localT) {
     // ears
-    p.fill(FUR);
+    p.fill(cat.fur);
     p.triangle(-40, -22, -20, -54, -10, -26);
     p.triangle(40, -22, 20, -54, 10, -26);
-    p.fill(PINK);
+    p.fill(cat.earPink);
     p.triangle(-32, -26, -22, -46, -16, -28);
     p.triangle(32, -26, 22, -46, 16, -28);
 
     // face
-    p.fill(FUR);
+    p.fill(cat.fur);
     p.circle(0, 0, 76);
+
+    // tabby forehead + cheek stripes
+    if (cat.tabby) {
+      p.fill(cat.furShade);
+      p.rect(-3, -34, 6, 12, 3);
+      p.push();
+      p.rotate(-0.4); p.rect(-16, -30, 5, 11, 3); p.pop();
+      p.push();
+      p.rotate(0.4); p.rect(11, -30, 5, 11, 3); p.pop();
+      p.ellipse(-30, 2, 5, 14);
+      p.ellipse(30, 2, 5, 14);
+    }
 
     // blush
     p.fill(255, 145, 200, 150);
     p.ellipse(-24, 10, 18, 11);
     p.ellipse(24, 10, 18, 11);
 
-    // eyes (blink by squishing height)
-    const eh = p.lerp(13, 1.5, blink);
-    p.fill('#4A1942');
+    // eyes (blink squishes height); Stitch gets bright blue
+    const eh = p.lerp(13, 1.5, cat.blink);
+    p.fill(cat.eye);
     p.ellipse(-15, -2, 11, eh);
     p.ellipse(15, -2, 11, eh);
-    if (blink < 0.5) {                 // sparkle highlights
+    if (cat.blink < 0.5) {
       p.fill(255);
       p.circle(-12, -5, 4);
       p.circle(18, -5, 4);
     }
 
     // nose
-    p.fill(PINK_DK);
+    p.fill('#D6177E');
     p.triangle(-5, 8, 5, 8, 0, 14);
 
-    // smile (grows a touch when happy)
+    // smile
     p.noFill();
-    p.stroke(PINK_DK);
+    p.stroke('#D6177E');
     p.strokeWeight(2.5);
-    const sm = 6 + happy * 5;
+    const sm = 6 + cat.happy * 5;
     p.arc(-6, 14, 12, sm, 0, p.PI);
     p.arc(6, 14, 12, sm, 0, p.PI);
     p.noStroke();
 
     // whiskers
-    p.stroke(255, 180, 220);
+    p.stroke(255, 255, 255, 200);
     p.strokeWeight(1.5);
     p.line(-18, 8, -42, 2);
     p.line(-18, 13, -42, 16);
@@ -134,30 +171,41 @@ const kittySketch = (p) => {
     p.noStroke();
   }
 
-  function drawPartyHat() {
+  function drawPartyHat(cat, localT) {
     p.push();
     p.translate(2, -44);
-    p.rotate(0.18 + Math.sin(t) * 0.02);   // jaunty tilt + tiny sway
+    p.rotate(0.18 + Math.sin(localT) * 0.02);
     // cone
-    p.fill(VIOLET);
+    p.fill(cat.hatA);
     p.triangle(-24, 8, 24, 8, 0, -56);
-    // candy stripes
-    p.fill(PINK);
-    p.push();
+    // contrasting stripes
+    p.fill(cat.hatB);
     p.beginShape();
     p.vertex(-24, 8); p.vertex(-12, 8); p.vertex(-4, -22); p.vertex(-12, -22);
     p.endShape(p.CLOSE);
     p.beginShape();
     p.vertex(4, 8); p.vertex(16, 8); p.vertex(10, -22); p.vertex(2, -22);
     p.endShape(p.CLOSE);
-    p.pop();
     // brim
-    p.fill(FUR_SHADE);
+    p.fill('#FFFFFF');
     p.ellipse(0, 8, 52, 12);
-    // pom-pom that wiggles
-    p.fill('#FFD600');
-    const px = Math.sin(t * 2) * 3;
+    // pom-pom wiggle
+    p.fill(cat.pom);
+    const px = Math.sin(localT * 2) * 3;
     p.circle(px, -58, 14);
+    p.pop();
+  }
+
+  function drawNameTag(cat, bob) {
+    p.push();
+    // counter the body bob so the label sits steady-ish under each cat
+    p.translate(0, 96 - bob * 0.5);
+    p.textAlign(p.CENTER, p.CENTER);
+    p.textStyle(p.BOLD);
+    p.textSize(13);
+    p.fill('#D6177E');
+    p.text(cat.name, 0, 0);
+    p.pop();
   }
 };
 
