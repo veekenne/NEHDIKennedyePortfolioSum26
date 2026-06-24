@@ -20,6 +20,45 @@ navLinks.querySelectorAll('a').forEach(a => {
   });
 });
 
+// ✨ Floating background sparkles ✨
+const sparkleLayer = document.createElement('div');
+sparkleLayer.className = 'sparkle-layer';
+document.body.appendChild(sparkleLayer);
+
+const SPARKLES = ['✨', '💖', '⭐', '🌸', '💫', '🩷'];
+function spawnSparkle() {
+  const s = document.createElement('span');
+  s.className = 'sparkle';
+  s.textContent = SPARKLES[Math.floor(Math.random() * SPARKLES.length)];
+  s.style.left = Math.random() * 100 + 'vw';
+  s.style.fontSize = (Math.random() * 14 + 10) + 'px';
+  const dur = Math.random() * 6 + 6;
+  s.style.animationDuration = dur + 's';
+  s.style.opacity = (Math.random() * 0.5 + 0.4).toFixed(2);
+  sparkleLayer.appendChild(s);
+  setTimeout(() => s.remove(), dur * 1000);
+}
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+if (!reduceMotion) {
+  setInterval(spawnSparkle, 450);
+
+  // Sparkle trail that follows the cursor 💫
+  let lastTrail = 0;
+  document.addEventListener('pointermove', (e) => {
+    const now = Date.now();
+    if (now - lastTrail < 60) return;
+    lastTrail = now;
+    const t = document.createElement('span');
+    t.className = 'sparkle-trail';
+    t.textContent = '✨';
+    t.style.left = e.clientX + 'px';
+    t.style.top = e.clientY + 'px';
+    t.style.fontSize = (Math.random() * 8 + 8) + 'px';
+    document.body.appendChild(t);
+    setTimeout(() => t.remove(), 800);
+  });
+}
+
 // Highlight active nav link on scroll
 const sections = document.querySelectorAll('section[id]');
 const navAs = document.querySelectorAll('.nav-links a[href^="#"]');
