@@ -65,7 +65,7 @@ ul { list-style: none; }
 }
 .nav-links {
   display: flex;
-  gap: 2rem;
+  gap: 1.6rem;
   align-items: center;
 }
 .nav-links a {
@@ -112,7 +112,8 @@ ul { list-style: none; }
   align-items: center;
   justify-content: center;
   text-align: center;
-  padding: 5.5rem 1.5rem 4.5rem;
+  min-height: 70vh;
+  padding: 6rem 1.5rem;
   background:
     radial-gradient(circle at 18% 22%, rgba(150, 133, 198, 0.3), transparent 55%),
     radial-gradient(circle at 85% 72%, rgba(123, 154, 111, 0.28), transparent 55%),
@@ -149,16 +150,15 @@ ul { list-style: none; }
   justify-content: center;
   flex-wrap: wrap;
 }
-.hero-image {
-  margin: 3rem auto 0;
-  max-width: 780px;
-  width: 100%;
-  border-radius: 18px;
+.about-side { display: flex; flex-direction: column; }
+.about-image {
+  margin-bottom: 1.6rem;
+  border-radius: 14px;
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.6);
-  box-shadow: 0 20px 48px rgba(107, 90, 163, 0.22), 0 4px 12px rgba(81, 105, 74, 0.12);
+  border: 1px solid var(--border-lav);
+  box-shadow: 0 10px 26px rgba(107, 90, 163, 0.18);
 }
-.hero-image img { width: 100%; display: block; }
+.about-image img { width: 100%; display: block; }
 
 /* ── BUTTONS ── */
 .btn {
@@ -273,6 +273,47 @@ ul { list-style: none; }
   background: var(--accent-light);
   color: var(--accent-dark);
 }
+
+/* ── EDUCATION ── */
+.edu-list { display: flex; flex-direction: column; gap: 1.4rem; margin-top: 2.2rem; }
+.edu-item {
+  display: flex;
+  gap: 1.5rem;
+  align-items: flex-start;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--lav);
+  border-radius: 12px;
+  padding: 1.4rem 1.6rem;
+  box-shadow: 0 2px 10px rgba(107, 90, 163, 0.05);
+}
+.edu-year {
+  flex-shrink: 0;
+  font-family: var(--font-sans);
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--lav-dark);
+  background: var(--lav-light);
+  border-radius: 6px;
+  padding: 0.3rem 0.7rem;
+  margin-top: 0.3rem;
+  white-space: nowrap;
+}
+.edu-degree {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 0.2rem;
+  line-height: 1.3;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+.edu-degree .chip { margin-top: 0; }
+.edu-school { color: var(--accent-dark); font-weight: 500; }
+.edu-note { color: var(--muted); font-size: 0.95rem; margin-top: 0.25rem; }
 
 /* ── PUBLICATIONS ── */
 .pub-group { margin-top: 2.75rem; }
@@ -516,6 +557,7 @@ ul { list-style: none; }
   .about-grid { grid-template-columns: 1fr; gap: 2.2rem; }
   .awards-grid { grid-template-columns: 1fr; gap: 2.5rem; }
   .teaching-grid { grid-template-columns: 1fr; }
+  .edu-item { flex-direction: column; gap: 0.6rem; }
 
   .pub-list li { flex-direction: column; gap: 0.4rem; }
   .conf-list li { flex-wrap: wrap; }
